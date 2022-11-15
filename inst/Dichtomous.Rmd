@@ -1,0 +1,119 @@
+---
+title: "Continuous"
+---
+
+## ToxicR for Continuous Models
+
+For dichotomous data, the function `single_dichotomous_fit()’ will fit all these. For this function, the first four parameters are mandatory. Here, ‘D’ is a vector of experimental doses, ‘Y’ represents an observed number of positive values, and ‘N’ represents the total number of experimental units. The last mandatory variable is the variable ‘model_type,’ which is a character string specifying the individual dose-response model. This option takes the values “hill”,“gamma”,“logistic”, “log-logistic”, “log-probit” ,“multistage” ,“probit”,“qlinear”, and “weibull”. If one specifies only the model, default parameter priors (bounds for MLE) will be used.
+
+All examples will use the following data:
+
+
+```{r}
+library(ToxicR)
+```
+
+```{r}
+formaldehyde_d <- matrix(NA,4,3)
+formaldehyde_d[,1] <- c(0,2,5.6,14.3)
+formaldehyde_d[,2] <- c(0,0,2,94)
+formaldehyde_d[,3] <- c(156,159,153,140)
+formaldehyde_d
+
+one_bp <- matrix(NA,4,3)
+one_bp[,1]  <- c(0,62.5,125,250)
+one_bp[,2]  <- c(1,9,8,14)
+one_bp[,3]  <- c(50,50,50,50)
+one_bp
+```
+
+## Hill Dichotomous
+
+The Hill Dichotomous model, specified as model_type = "hill", has four parameters and is in the form:
+
+$$f(dose|a,b,c,d)= a+(b-a)\times\frac{dose^d}{c^d+dose^d}$$
+
+where $a=\frac{1}{1+\exp(-a^*)}$ and $b=\frac{1}{1+\exp(-b^*)}$. In ToxicR, these parameters are specified and returned in order as: $a,b,c$ and $d$ Now $a$ and $b$ represent probabilities, but $a^*$ and $b^*$ are defined/returned on the real number line, which allows for consistent prior specification. To convert to the probability, use the logistic transform above.
+
+
+
+```{r}
+hill_for  <-single_dichotomous_fit(formaldehyde_d[,1],formaldehyde_d[,2],
+                                 formaldehyde_d[,3],model_type="hill")
+plot(hill_for)
+hill_for_mcmc  <-single_dichotomous_fit(formaldehyde_d[,1],formaldehyde_d[,2],
+                                 formaldehyde_d[,3],model_type="hill",fit_type = "mcmc")
+hill_for$parameters
+plot(hill_for_mcmc)
+```
+
+I think the next dataset is not very 
+
+```{r}
+hill_bp  <-single_dichotomous_fit(one_bp[,1],one_bp[,2],
+                                  one_bp[,3],model_type="hill")
+hill_bp_mcmc  <-single_dichotomous_fit(one_bp[,1],one_bp[,2],
+                                  one_bp[,3],model_type="hill")
+plot(hill_bp_mcmc)
+hill_bp$parameters
+```
+
+
+```{r}
+# Probabilities  Formaldehyde
+print(1/(1+exp(-hill_for$parameters[c(1,2)])))
+```
+
+
+```{r}
+## Probabilities 1-Bromopropane
+print(1/(1+exp(-hill_bp$parameters[c(1,2)])))
+```
+
+```{r}
+### bmd distribution
+plot(hill_bp$bmd_dist)
+```
+
+
+In general, $b$ is a very challenging parameter for dichotomous data because it specifies a different asymptote than 100%. In the first example, the asymptote is 92%. In the second example the asymptote is 46%. Though possible, I would not recommend fitting the model using the method of maximum likelihood.
+
+We can specify priors for the ‘Hill’ model as follows:
+
+
+```{r}
+hill_list <- create_prior_list(normprior(-2,0.5,-20,20), #a*# the truncated normal distribution
+                                normprior(2,0.5,-20,20), #b*#
+                                lnormprior(0,1,0,100),   #c#
+                                lnormprior(0.41,0.2,0,100)) #d#
+hill_p   <- create_dichotomous_prior(hill_list,"hill")
+
+hill_for_p1  <- single_dichotomous_fit(formaldehyde_d[,1],formaldehyde_d[,2],
+                                       formaldehyde_d[,3],prior = hill_p)
+
+summary(hill_for_p1)
+summary(hill_for)
+```
+
+This prior has changed the outcome and the fit is not acceptable anymore. 
+
+```{r}
+p1 <- plot(hill_for_p1)
+p2 <- plot(hill_for)
+
+library(patchwork)
+p1+p2
+y1 <- predict(hill_for) %>% as.data.frame %>%rename(Y1=Y)
+y2 <- predict(hill_for) %>% as.data.frame %>%rename(Y2=Y)
+
+dat <- left_join(y1,y2)
+dat <- cbind(formaldehyde_d,dat)%>%as_tibble()%>% mutate(Y0=`2`/`3`)
+#chisq.test(dat$Y0,dat$Y1)
+#chisq.test(dat$Y0,dat$Y2)
+```
+
+
+```{r}
+hill_p$parameters
+```
+

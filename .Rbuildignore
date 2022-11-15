@@ -1,2 +1,5 @@
 cran-comments.md
 CHANGELOG.md
+^.*\.Rproj$
+^\.Rproj\.user$
+^vignettes/articles$

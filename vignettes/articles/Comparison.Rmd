@@ -1,0 +1,37 @@
+---
+title: "Comparison"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ToxicR)
+library(drc)
+library(drcHelper)
+library(bmd)
+```
+
+
+```{r}
+m1 <- drm(rootl ~ conc, data = ryegrass, fct = LL.3())
+m1 <- drm(rootl ~ conc, data = ryegrass, fct = LL.4())
+drcHelper::ED.plus(m1,c(10,50),CI="delta",trend="Decrease",level=0.90)
+drcHelper::ED.plus(m1,c(10,50),CI="inv",trend="Decrease",level=0.90)
+ED(m1,c(10,50),interval="inv",level=0.9)
+ED(m1,c(10,50),interval="delta",level=0.9,type="relative")
+ED(m1,c(10,50),interval="delta",level=0.9,type="absolute")
+```
+
+
+```{r}
+rootl <- ryegrass$rootl
+conc <- ryegrass$conc
+fit1 <- single_continuous_fit(conc,rootl,fit_type = "mle",model_type = "hill",BMD_TYPE="rel",BMR=0.1,alpha=0.025)
+summary(fit1)
+```
+

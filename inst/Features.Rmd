@@ -1,0 +1,42 @@
+---
+title: "Feature Request"
+---
+
+
+## Edit the print method 
+
+so that the print of the summary is more clear, 
+
+1 == normal prior
+2 == log-normal prior
+
+
+## Plot should be addable
+
+p1 p2. ==> Zhenglei would do that!!
+
+## Fitting function 
+
+should include formula option together with data. 
+
+```{r}
+p <- plot(hill_for_p1)
+layer_data(p, 2)
+
+plot(list(fill_for,hill_for_p1))
+```
+
+
+
+## S3 methods
+
+predict?
+
+```{r}
+getS3method(f="plot",class="BMDdich_fit_maximized")
+getS3method(f="summary",class="BMDdich_fit_maximized")
+getS3method(f="predict",class="BMDdich_fit_maximized")
+## print method does not exists!
+## getS3method(f="print",class="BMDdich_fit_maximized") 
+```
+

@@ -18,6 +18,13 @@ For macOS, the .tgz file is compiled in R 4.2.
 For Linux, the package must be compiled. 
 For more information, please visit the instructions on the [Wiki](https://github.com/NIEHS/ToxicR/wiki). 
 
+### Linux compilation
+
+For some dependency packages, you might need to install some libraries. 
+
+sudo apt install libgsl-dev
+sudo apt install libgsl-dev
+
 ## Citing ToxicR
 
 All dose-response methodologies used in ToxicR were developed in the following manuscripts: 
