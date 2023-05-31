@@ -4,6 +4,7 @@ title: "ToxicR: Continuous Analysis"
 
 ```{r}
 library(ToxicR)
+library(tidyverse)
 dose <- c(0,62.5,125,250)
 obs <- c(1,9,8,14)
 n <- c(50,50,50,50)

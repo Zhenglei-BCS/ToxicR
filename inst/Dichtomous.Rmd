@@ -11,6 +11,7 @@ All examples will use the following data:
 
 ```{r}
 library(ToxicR)
+library(tidyverse)
 ```
 
 ```{r}
